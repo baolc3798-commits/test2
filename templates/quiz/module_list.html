@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>Danh sách Module CEH v13</h2>
+        <div class="list-group">
+            {% for module in modules %}
+                <a href="{% url 'start_quiz' module.id %}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">{{ module.title }}</h5>
+                        <small>Số câu hỏi: {{ module.questions.count }}</small>
+                    </div>
+                    <p class="mb-1">{{ module.description }}</p>
+                    <small>Thời gian: {{ module.exam_config.time_limit }} phút</small>
+                </a>
+            {% empty %}
+                <p>Hiện chưa có module nào.</p>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-4">
+        <h3>Lịch sử làm bài</h3>
+        <ul class="list-group">
+            {% for attempt in user_attempts %}
+                <li class="list-group-item">
+                    {{ attempt.module.title }}<br>
+                    <small>Điểm: {{ attempt.score }}%</small><br>
+                    <small>{{ attempt.start_time|date:"d/m/Y H:i" }}</small>
+                </li>
+            {% empty %}
+                <li class="list-group-item">Chưa có lượt thi nào.</li>
+            {% endfor %}
+        </ul>
+
+        <div class="mt-4">
+            <h4>Biểu đồ năng lực</h4>
+            <canvas id="performanceChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('performanceChart').getContext('2d');
+        const chartLabels = {{ chart_labels|safe }};
+        const chartData = {{ chart_data|safe }};
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Điểm cao nhất (%)',
+                    data: chartData,
+                    backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

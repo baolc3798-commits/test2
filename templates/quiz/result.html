@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow">
+        <div class="card-header bg-success text-white">
+            <h3 class="mb-0">Kết quả bài thi</h3>
+        </div>
+        <div class="card-body text-center">
+            <h4>{{ attempt.module.title }}</h4>
+            <h1 class="display-4 text-primary">{{ score_percent|floatform:1 }}%</h1>
+            <p class="lead">Bạn đã trả lời đúng {{ correct_count }} / {{ total_questions }} câu.</p>
+            <p>Thời gian làm bài: {{ attempt.end_time|timeuntil:attempt.start_time }}</p>
+            <a href="{% url 'module_list' %}" class="btn btn-primary">Về danh sách Module</a>
+        </div>
+
+        {% if show_details %}
+        <div class="card-footer">
+            <h5>Chi tiết câu trả lời:</h5>
+            <div class="accordion" id="resultAccordion">
+                {% for item in results %}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="heading{{ forloop.counter }}">
+                            <button class="accordion-button {% if item.is_correct %}collapsed bg-success-subtle text-success{% elif item.skipped %}collapsed bg-warning-subtle text-warning{% else %}collapsed bg-danger-subtle text-danger{% endif %}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">
+                                Câu {{ forloop.counter }}: {{ item.question.content|truncatechars:50 }}
+                                <span class="badge {% if item.is_correct %}bg-success{% elif item.skipped %}bg-warning{% else %}bg-danger{% endif %} ms-2">
+                                    {% if item.is_correct %}Đúng{% elif item.skipped %}Bỏ qua{% else %}Sai{% endif %}
+                                </span>
+                            </button>
+                        </h2>
+                        <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#resultAccordion">
+                            <div class="accordion-body">
+                                <p><strong>Câu hỏi:</strong> {{ item.question.content }}</p>
+
+                                {% if item.question.question_type == 'single' or item.question.question_type == 'multiple' %}
+                                    <ul class="list-group">
+                                        {% for choice in item.question.choices.all %}
+                                            <li class="list-group-item
+                                                {% if choice.is_correct %}list-group-item-success{% endif %}
+                                                {% if item.user_answer and choice in item.user_answer.selected_choices.all and not choice.is_correct %}list-group-item-danger{% endif %}">
+                                                {{ choice.content }}
+                                                {% if choice.is_correct %}<span class="badge bg-success float-end">Đáp án đúng</span>{% endif %}
+                                                {% if item.user_answer and choice in item.user_answer.selected_choices.all %}<span class="badge bg-primary float-end me-2">Bạn chọn</span>{% endif %}
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p><strong>Câu trả lời của bạn:</strong> {{ item.user_answer.text_answer|default:"(Không trả lời)" }}</p>
+                                    <p class="text-warning">Câu hỏi này cần chấm điểm thủ công.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

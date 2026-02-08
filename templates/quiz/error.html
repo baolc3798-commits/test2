@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">Đã xảy ra lỗi!</h4>
+    <p>{{ message }}</p>
+    <hr>
+    <p class="mb-0"><a href="{% url 'module_list' %}">Quay lại danh sách module</a></p>
+</div>
+{% endblock %}

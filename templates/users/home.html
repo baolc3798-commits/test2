@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-5 mb-4 bg-light rounded-3 shadow-sm">
+    <div class="container-fluid py-5">
+        <h1 class="display-5 fw-bold">Chào mừng đến với hệ thống CEH v13 Quiz</h1>
+        <p class="col-md-8 fs-4">Luyện tập và kiểm tra kiến thức CEH v13 của bạn với ngân hàng câu hỏi đa dạng.</p>
+        <p class="col-md-8 fs-5">Tổ chức của bạn: {{ user.organization|default:"Chưa cập nhật" }}</p>
+        <button class="btn btn-primary btn-lg" type="button">Bắt đầu làm bài (Coming Soon)</button>
+    </div>
+</div>
+{% endblock %}

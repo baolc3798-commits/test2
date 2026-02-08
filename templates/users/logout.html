@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="alert alert-info shadow">
+            <h4>Bạn đã đăng xuất thành công</h4>
+            <p>Cảm ơn bạn đã sử dụng hệ thống.</p>
+            <a href="{% url 'login' %}" class="btn btn-primary">Đăng nhập lại</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
