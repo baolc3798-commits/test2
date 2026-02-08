@@ -1,0 +1,12 @@
+asgiref==3.11.1
+crispy-bootstrap5==2025.6
+Django==6.0.2
+django-crispy-forms==2.5
+greenlet==3.3.0
+gunicorn==25.0.3
+packaging==26.0
+playwright==1.57.0
+pyee==13.0.0
+python-dotenv==1.2.1
+sqlparse==0.5.5
+typing_extensions==4.15.0

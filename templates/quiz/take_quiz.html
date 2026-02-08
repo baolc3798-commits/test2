@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-9">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Câu hỏi {{ question_index }} / {{ total_questions }}</h5>
+                    {% if remaining_time %}
+                        <span class="badge bg-danger" id="timer">Thời gian: --:--</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <h4 class="card-title">{{ question.content }}</h4>
+                    <hr>
+
+                    {% if show_feedback %}
+                        <div class="alert {% if is_correct %}alert-success{% else %}alert-danger{% endif %}">
+                            <strong>{% if is_correct %}Chính xác!{% else %}Chưa chính xác!{% endif %}</strong>
+                        </div>
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="next">
+
+                        {% if question.question_type == 'single' %}
+                            <div class="list-group">
+                                {% for choice in question.choices.all %}
+                                    <label class="list-group-item
+                                        {% if show_feedback %}
+                                            {% if choice.is_correct %}list-group-item-success{% endif %}
+                                            {% if user_answer and choice in user_answer.selected_choices.all and not choice.is_correct %}list-group-item-danger{% endif %}
+                                        {% endif %}">
+                                        <input class="form-check-input me-1" type="radio" name="choice" value="{{ choice.id }}"
+                                            {% if user_answer and choice in user_answer.selected_choices.all %}checked{% endif %}
+                                            {% if show_feedback %}disabled{% endif %}>
+                                        {{ choice.content }}
+                                        {% if show_feedback and choice.is_correct %}
+                                            <span class="badge bg-success float-end">Đáp án đúng</span>
+                                        {% endif %}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        {% elif question.question_type == 'multiple' %}
+                            <div class="list-group">
+                                {% for choice in question.choices.all %}
+                                    <label class="list-group-item
+                                        {% if show_feedback %}
+                                            {% if choice.is_correct %}list-group-item-success{% endif %}
+                                            {% if user_answer and choice in user_answer.selected_choices.all and not choice.is_correct %}list-group-item-danger{% endif %}
+                                        {% endif %}">
+                                        <input class="form-check-input me-1" type="checkbox" name="choice" value="{{ choice.id }}"
+                                            {% if user_answer and choice in user_answer.selected_choices.all %}checked{% endif %}
+                                            {% if show_feedback %}disabled{% endif %}>
+                                        {{ choice.content }}
+                                        {% if show_feedback and choice.is_correct %}
+                                            <span class="badge bg-success float-end">Đáp án đúng</span>
+                                        {% endif %}
+                                    </label>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <div class="mb-3">
+                                <label for="text_answer" class="form-label">Câu trả lời của bạn:</label>
+                                <textarea class="form-control" id="text_answer" name="text_answer" rows="3" {% if show_feedback %}disabled{% endif %}>{{ user_answer.text_answer|default:'' }}</textarea>
+                            </div>
+                        {% endif %}
+
+                        <div class="mt-4 d-flex justify-content-between">
+                            {% if not show_feedback %}
+                                {% if question_index > 1 %}
+                                    <a href="{% url 'take_quiz' attempt.id question_index|add:"-1" %}" class="btn btn-secondary">Câu trước</a>
+                                {% else %}
+                                    <div></div>
+                                {% endif %}
+
+                                <button type="submit" class="btn btn-primary">
+                                    {% if question_index == total_questions %}Nộp bài{% else %}Câu tiếp theo{% endif %}
+                                </button>
+                            {% else %}
+                                <div></div>
+                                {% if question_index < total_questions %}
+                                    <a href="{% url 'take_quiz' attempt.id question_index|add:"1" %}" class="btn btn-primary">Tiếp tục</a>
+                                {% else %}
+                                    <a href="{% url 'quiz_result' attempt.id %}" class="btn btn-success">Xem kết quả</a>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card">
+                <div class="card-header">Danh sách câu hỏi</div>
+                <div class="card-body">
+                    <div class="row g-2">
+                    {% for i in question_range %}
+                            <div class="col-3">
+                            <a href="{% url 'take_quiz' attempt.id i %}"
+                               class="btn btn-sm {% if i == question_index %}btn-primary{% else %}btn-outline-secondary{% endif %} w-100">
+                                {{ i }}
+                                </a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if remaining_time %}
+<script>
+    // Timer Logic
+    let remainingTime = {{ remaining_time }};
+    const timerElement = document.getElementById('timer');
+
+    function updateTimer() {
+        if (remainingTime <= 0) {
+            timerElement.textContent = "Hết giờ!";
+            // Auto submit or redirect
+            window.location.href = "{% url 'quiz_result' attempt.id %}";
+            return;
+        }
+
+        const minutes = Math.floor(remainingTime / 60);
+        const seconds = Math.floor(remainingTime % 60);
+        timerElement.textContent = `Thời gian: ${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        remainingTime--;
+    }
+
+    setInterval(updateTimer, 1000);
+    updateTimer();
+</script>
+{% endif %}
+{% endblock %}
