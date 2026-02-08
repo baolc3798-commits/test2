@@ -102,6 +102,30 @@ Truy cập trình duyệt tại địa chỉ: `http://127.0.0.1:8000`
 *   **Trang chủ:** `http://127.0.0.1:8000`
 *   **Trang quản trị:** `http://127.0.0.1:8000/admin` (Đăng nhập bằng tài khoản superuser vừa tạo).
 
+### 8. Truy cập từ bên ngoài (External Access)
+
+Nếu bạn không thể truy cập từ máy khác (hoặc từ IP Public):
+
+1.  **Cập nhật cấu hình `.env`:**
+    Mở file `.env` và thêm `*` hoặc địa chỉ IP Public của server vào `ALLOWED_HOSTS`:
+    ```ini
+    ALLOWED_HOSTS=*
+    # Hoặc: ALLOWED_HOSTS=127.0.0.1,localhost,your.server.ip
+    ```
+
+2.  **Chạy server với địa chỉ 0.0.0.0:**
+    Thay vì chỉ chạy `python manage.py runserver`, hãy chạy:
+    ```bash
+    python manage.py runserver 0.0.0.0:8000
+    ```
+
+3.  **Kiểm tra Firewall (Tường lửa):**
+    *   Nếu dùng AWS/Google Cloud: Mở port 8000 trong Security Group/Firewall Rules.
+    *   Nếu dùng VPS Linux (UFW):
+        ```bash
+        sudo ufw allow 8000
+        ```
+
 ---
 
 ## Hướng dẫn sử dụng Admin
